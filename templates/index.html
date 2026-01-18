@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Marshall JCM 900 - Vintage Tone Lab</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            background-color: #0d0d0d; color: #f2f2f2; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+            display: flex; justify-content: center; padding-top: 50px; 
+            /* Animacja wejścia */
+            opacity: 0; animation: fadeIn 0.6s ease-out forwards; 
+        }
+        @keyframes fadeIn { to { opacity: 1; } }
+        
+        .amp-panel {
+            background: linear-gradient(180deg, #d4af37 0%, #b8952e 100%);
+            background-image: repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255,255,255,0.05) 3px, transparent 4px);
+            border: 12px solid #000;
+            border-radius: 4px;
+            padding: 40px;
+            width: 900px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        .brand { font-family: 'Dancing Script', cursive; font-size: 90px; color: #fff; text-align: center; margin-top: -20px; text-shadow: 3px 3px 0px #000, 4px 4px 10px rgba(0,0,0,0.4); letter-spacing: -3px; }
+        .model-name { color: #000; font-weight: bold; font-size: 14px; text-align: center; margin-top: -15px; margin-bottom: 30px; letter-spacing: 2px; text-transform: uppercase; }
+
+        .power-jewel { width: 40px; height: 40px; background: radial-gradient(circle, #ff0000 20%, #600000 90%); border: 5px solid #1a1a1a; border-radius: 50%; margin: 0 auto 30px; box-shadow: 0 0 5px #000; transition: 0.2s; cursor: pointer; }
+        .jewel-on { background: radial-gradient(circle, #ff6666 10%, #cc0000 70%); box-shadow: 0 0 30px #f00, inset 0 0 10px #fff; }
+
+        .controls-row { 
+            display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: space-around; 
+            margin: 40px 0; background: rgba(0,0,0,0.1); padding: 20px; border-radius: 10px; gap: 5px;
+        }
+        .knob-unit { text-align: center; min-width: 100px; }
+        .label { 
+            color: #000000; font-weight: 900; text-transform: uppercase; font-size: 11px;
+            letter-spacing: 1px; margin-bottom: 12px; display: block; pointer-events: none; text-shadow: 0px 1px 1px rgba(255,255,255,0.4);
+        }
+        .knob {
+            width: 75px; height: 75px;
+            background: linear-gradient(to bottom, #f3d77e 0%, #c69c2b 100%);
+            border: 4px solid #222; border-radius: 50%;
+            position: relative; margin: 0 auto; transition: transform 0.1s linear;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+        }
+        .knob::after { 
+            content: ''; position: absolute; top: 5px; left: 50%; width: 4px; height: 15px; 
+            background: #000000; transform: translateX(-50%); border-radius: 2px; 
+        }
+        .value-display { 
+            color: #000000; font-family: 'Courier New', monospace; font-weight: bold; font-size: 16px; 
+            margin-top: 8px; display: inline-block; min-width: 50px; text-align: center; text-shadow: 0px 1px 1px rgba(255,255,255,0.5);
+        }
+        .hidden-input { opacity: 0; height: 0; width: 0; position: absolute; pointer-events: none; }
+        
+        select { background: #000; color: #d4af37; border: 2px solid #000; padding: 10px; width: 100%; border-radius: 3px; font-weight: bold; }
+        .vu-strip { background: #111; height: 10px; width: 100%; margin: 20px 0; border-radius: 2px; overflow: hidden; }
+        #vu-meter { height: 100%; width: 0%; background: linear-gradient(90deg, #2ecc71, #f1c40f, #e74c3c); transition: 0.1s; }
+
+        .preset-drawer { background: #1a1a1a; width: 900px; padding: 20px; border: 10px solid #000; border-top: none; text-align: center; box-sizing: border-box; }
+        button { background: #000; color: #d4af37; border: 2px solid #222; padding: 10px 15px; font-weight: bold; text-transform: uppercase; cursor: pointer; transition: 0.2s; margin: 5px; font-size: 12px; }
+        button:hover { background: #222; color: #fff; }
+
+        /* Przycisk do Pedalboardu */
+        .pedalboard-btn {
+            background: #d4af37; color: #000; padding: 10px 20px; text-decoration: none; 
+            font-weight: bold; border: 2px solid #000; font-family: Arial, sans-serif; text-transform: uppercase;
+            display: inline-block; margin-bottom: 20px;
+        }
+        .pedalboard-btn:hover { background: #fff; }
+    </style>
+</head>
+<body>
+
+<div style="display: flex; flex-direction: column; align-items: center;">
+    
+    <a href="/pedalboard" class="pedalboard-btn">GO TO PEDALBOARD >></a>
+
+    <div class="amp-panel">
+        <div class="brand">VintageToneLab</div>
+        <div class="model-name">JCM 900 Hi Gain Dual Reverb</div>
+        
+        <div class="power-jewel" id="jewel"></div>
+
+        <select id="device-select" onchange="selectDevice()">
+            <option>WARMING UP VALVES...</option>
+        </select>
+
+        <div class="vu-strip"><div id="vu-meter"></div></div>
+
+       <div class="controls-row">
+            <div class="knob-unit">
+                <span class="label">Preamp Gain</span>
+                <div class="knob" id="gain-knob"></div>
+                <input type="range" id="gain-slider" min="0" max="11" step="0.1" value="1" class="hidden-input" oninput="updateKnob('gain')">
+                <span id="gain-val" class="value-display">1.0</span>
+            </div>
+            
+            <div class="knob-unit">
+                <span class="label">Treble</span>
+                <div class="knob" id="treble-knob"></div>
+                <input type="range" id="treble-slider" min="0" max="10" step="0.1" value="5" class="hidden-input" oninput="updateKnob('treble')">
+                <span id="treble-val" class="value-display">5.0</span>
+            </div>
+
+            <div class="knob-unit">
+                <span class="label">Middle</span>
+                <div class="knob" id="middle-knob"></div>
+                <input type="range" id="middle-slider" min="0" max="10" step="0.1" value="5" class="hidden-input" oninput="updateKnob('middle')">
+                <span id="middle-val" class="value-display">5.0</span>
+            </div>
+
+            <div class="knob-unit">
+                <span class="label">Bass</span>
+                <div class="knob" id="bass-knob"></div>
+                <input type="range" id="bass-slider" min="0" max="10" step="0.1" value="5" class="hidden-input" oninput="updateKnob('bass')">
+                <span id="bass-val" class="value-display">5.0</span>
+            </div>
+
+            <div class="knob-unit">
+                <span class="label">Presence</span>
+                <div class="knob" id="presence-knob"></div>
+                <input type="range" id="presence-slider" min="0" max="10" step="0.1" value="5" class="hidden-input" oninput="updateKnob('presence')">
+                <span id="presence-val" class="value-display">5.0</span>
+            </div>
+
+            <div class="knob-unit">
+                <span class="label">Reverb</span>
+                <div class="knob" id="reverb-knob"></div>
+                <input type="range" id="reverb-slider" min="0" max="10" step="0.1" value="0" class="hidden-input" oninput="updateKnob('reverb')">
+                <span id="reverb-val" class="value-display">0.0</span>
+            </div>
+
+            <div class="knob-unit">
+                <span class="label">Master</span>
+                <div class="knob" id="master-knob"></div>
+                <input type="range" id="master-slider" min="0" max="10" step="0.1" value="5" class="hidden-input" oninput="updateKnob('master')">
+                <span id="master-val" class="value-display">5.0</span>
+            </div>
+        </div>
+
+        <div class="preset-drawer">
+            <p style="color: #666; font-size: 12px; margin-bottom: 15px; letter-spacing: 2px;">PRESET MEMORY SLOTS</p>
+            <button onclick="applyPreset('Clean')">Clean</button>
+            <button onclick="applyPreset('Crunch')">Crunch</button>
+            <button onclick="applyPreset('Lead')">Lead</button>
+            <button onclick="applyPreset('SpinalTap')">11!</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script>
+    const socket = io();
+
+    const guitarPresets = {
+        'Clean': { gain: 1.5, treble: 5, middle: 6, bass: 4, presence: 3, reverb: 2, master: 5 },
+        'Crunch': { gain: 5.5, treble: 6, middle: 7, bass: 5, presence: 5, reverb: 3, master: 6 },
+        'Lead': { gain: 9.0, treble: 7, middle: 4, bass: 7, presence: 7, reverb: 4, master: 7 },
+        'SpinalTap': { gain: 11, treble: 10, middle: 10, bass: 10, presence: 10, reverb: 5, master: 10 }
+    };
+
+    function updateKnob(name) {
+        const slider = document.getElementById(name + '-slider');
+        const val = parseFloat(slider.value);
+        const maxVal = name === 'gain' ? 11 : 10;
+        
+        const rot = (val / maxVal) * 270 - 135;
+        const knob = document.getElementById(name + '-knob');
+        if(knob) knob.style.transform = `rotate(${rot}deg)`;
+
+        const display = document.getElementById(name + '-val');
+        if(display) {
+            if(name === 'gain' && val === 11) {
+                display.innerText = "ELEVEN!";
+                display.style.color = "#ff0000"; 
+            } else {
+                display.innerText = val.toFixed(1);
+                display.style.color = "#000";
+            }
+        }
+        socket.emit('update_param', {param: name, value: val});
+    }
+
+    function applyPreset(name) {
+        const p = guitarPresets[name];
+        if (!p) return;
+        Object.keys(p).forEach(key => {
+            const slider = document.getElementById(key + '-slider');
+            if (slider) {
+                slider.value = p[key];
+                updateKnob(key);
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const knobUnits = document.querySelectorAll('.knob-unit');
+        knobUnits.forEach(unit => {
+            unit.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const slider = unit.querySelector('input[type="range"]');
+                if(!slider) return;
+
+                const step = 0.2;
+                let currentValue = parseFloat(slider.value);
+                if(e.deltaY < 0) currentValue += step; else currentValue -= step;
+
+                const min = parseFloat(slider.min);
+                const max = parseFloat(slider.max);
+                if(currentValue < min) currentValue = min;
+                if(currentValue > max) currentValue = max;
+
+                slider.value = currentValue;
+                const paramName = slider.id.replace('-slider', '');
+                updateKnob(paramName);
+            }, { passive: false });
+        });
+    });
+
+    socket.on('audio_update', (data) => {
+        // Obsługa głośności w trybie AMP
+        if (data.level !== undefined) {
+            const level = Math.min(data.level * 100, 100);
+            const meter = document.getElementById('vu-meter');
+            if (meter) meter.style.width = level + '%';
+            
+            const jewel = document.getElementById('jewel');
+            if(jewel && level > 1) {
+                const glow = 0.8 + (data.level * 2);
+                jewel.style.filter = `brightness(${Math.min(glow, 2.5)})`;
+                jewel.style.boxShadow = `0 0 ${15 + data.level * 100}px #f00`;
+            }
+        }
+    });
+
+    function loadDevices() {
+        fetch('/api/devices').then(r => r.json()).then(d => {
+            const s = document.getElementById('device-select');
+            s.innerHTML = '<option value="">-- SELECT INPUT --</option>';
+            d.forEach(dev => {
+                const o = document.createElement('option');
+                o.value = dev.id; o.innerText = dev.name;
+                s.appendChild(o);
+            });
+        });
+    }
+
+    function selectDevice() {
+        const id = document.getElementById('device-select').value;
+        fetch('/api/select_devices', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({id: parseInt(id)})
+        }).then(res => {
+            if(res.ok) {
+                const j = document.getElementById('jewel');
+                if(j) j.classList.add('jewel-on');
+            }
+        });
+    }
+
+    window.onload = () => {
+        loadDevices();
+        ['gain', 'treble', 'middle', 'bass', 'presence', 'reverb', 'master'].forEach(k => updateKnob(k));
+    };
+</script>
+</body>
+</html>

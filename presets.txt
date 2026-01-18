@@ -1,0 +1,15 @@
+"Czysty Jazz/Blues"
+DRIVE = OFF
+GAIN = 1.2x - 1.8x
+TONE = 0.3
+
+"Klasyczny rock (plexi style)"
+DRIVE = ON
+GAIN = 4.5x
+TONE = 0.5 (przester, ale nie kłuje w uszy)
+
+"Heavy Metal/Lead"
+DRIVE = ON
+GAIN = 8.5x - 10x
+TONE = 0.75 (agresywne, przebijające się w miksie)
+
