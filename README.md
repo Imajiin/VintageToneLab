@@ -1,99 +1,66 @@
-Vintage Tone Lab: Analizator YIN 
+# VintageToneLab 🎸
 
-![Project Status](https://img.shields.io/badge/status-active-success)
-![Python](https://img.shields.io/badge/python-3.9+-blue)
-![Framework](https://img.shields.io/badge/framework-Flask-lightgrey)
+**VintageToneLab** to wirtualny pedalboard gitarowy i symulator wzmacniacza działający w przeglądarce internetowej w czasie rzeczywistym. Aplikacja wykorzystuje język Python do cyfrowego przetwarzania sygnału (DSP) oraz interfejs Web (HTML/CSS/JS) do sterowania efektami.
 
-**Vintage Tone Lab** to aplikacja webowa w klimacie retro (wzorowana na wzmacniaczu Marshalla), służąca do analizy sygnału z gitary elektrycznej w czasie rzeczywistym. Projekt łączy niskolatencyjne przetwarzanie dźwięków z interfejsów **Focusrite Scarlett** z autorską implementacją algorytmu detekcji wysokości dźwięku **YIN**
+Stworzone jako projekt zaliczeniowy, demonstrujący możliwości przetwarzania audio w Pythonie przy użyciu bibliotek `numpy` i `sounddevice`.
 
----
+## 🌟 Funkcje
 
-## 1. Wymagania sprzętowe (Hardware Setup)
+* **11 Wirtualnych Efektów** inspirowanych klasycznymi kostkami BOSS (m.in. Distortion DS-1, Overdrive OD-1, Chorus CE-2, Delay DM-2, Reverb RV-6).
+* **Symulacja Wzmacniacza** typu JCM 900 z pełną korekcją (EQ) i symulacją kolumny.
+* **Wbudowany Tuner Chromatyczny** działający w trybie True Bypass.
+* **System Presetów** (Clean, Blues, Metal, Ambient).
+* **Interfejs w przeglądarce** komunikujący się z silnikiem audio przez WebSocket (brak opóźnień w sterowaniu).
+* **Auto-detekcja sprzętu** (obsługa sterowników MME/DirectSound).
 
-Projekt został zoptymalizowany pod konktretną konfigurację, ale wspiera też rozwiązania mobilne:
+## 🛠️ Technologie
 
-* **Interfejs Audio** Focusrite Scarlett (używana 3rd Generation Solo).
-    * *Ustawienia*:* Input 1, tryb **INST** (Instrument), opcjonalnie **AIR**.
-* **Alternatywa** Wnudowany mikrofon laptopa (wymagana kalibracja bramki szumów w aplikacji).
-* **Instrument** Gitara elektryczna / basowa.
+* **Backend:** Python 3.11, Flask, Flask-SocketIO.
+* **Audio Engine:** NumPy (obliczenia macierzowe DSP), SoundDevice (PortAudio wrapper).
+* **Frontend:** HTML5, CSS3 (Custom Design), JavaScript (Vanilla).
 
----
+## 🚀 Instalacja i Uruchomienie
 
-## 2.Instrukcja uruchomienia (Dev Guide)
-
-### Wymagania sprzętowe
-* Python 3.9+
-* Sterowniki Focusrite Control (ASIO) zainstalowane w systemie.
-
-## Instalacja 
-1. Sklonuj repozytorium
+1.  **Sklonuj repozytorium:**
     ```bash
-    git clone []
+    git clone [https://github.com/Imajiin/VintageToneLab.git](https://github.com/Imajiin/VintageToneLab.git)
     cd VintageToneLab
+    ```
 
-2. Tworzenie i aktywacja środowiska wirtualnego 
-```python -m venv venv
-    source venv/bin/activate #Linux/macOS
-    .\venv\Scripts\activate  #Windows
+2.  **Stwórz i aktywuj środowisko wirtualne:**
+    * Windows:
+        ```powershell
+        python -m venv venv
+        venv\Scripts\activate
+        ```
+    * Mac/Linux:
+        ```bash
+        python3 -m venv venv
+        source venv/bin/activate
+        ```
 
-3. Instalacja zależności:
-```pip install -r requirements.txt
+3.  **Zainstaluj zależności:**
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-4. Uruchomienie serwera
-```python app.py
+4.  **Podłącz gitarę:**
+    * Podłącz interfejs audio (np. Focusrite Scarlett) do komputera.
+    * Podłącz gitarę do wejścia instrumentalnego.
 
----
-## 3. Wykorzystane technologie i algorytmy
+5.  **Uruchom aplikację:**
+    ```bash
+    python app.py
+    ```
 
-####  PPP 
-* **Algorytm YIN:** Autorska implementacja estymacji częstotliwości podstawowej. Wykorzystujemy kroki: 
-    * *Difference Function* (minimalizacja błędu fazy),
-    * *Cumulative Mean Normalized Difference* (eliminacja błędów oktawowych),
-    * *Absolute Thresholding* oraz *Interpolacja Paraboliczna* dla precyzji do 0.1 Hz.
-* **Digital Signal Processing (DSP):** Przetwarzanie sygnału w czasie rzeczywistym z wykorzystaniem biblioteki `NumPy` do operacji macierzowych na buforach audio.
-* **Bramka Szumów (Noise Gate):** Dynamiczne odcinanie sygnału poniżej zadanego progu RMS, co pozwala na czystą pracę z mikrofonem laptopa.
+6.  **Otwórz przeglądarkę:**
+    Wejdź na adres: `http://127.0.0.1:5000`
 
-#### PAI 
-* **Flask & WebSockets:** Wykorzystanie protokołu WebSocket (Socket.io) do strumieniowania danych audio z backendu do frontendu bez przeładowywania strony.
-* **Vintage UI (Marshall Style):** Interfejs zaprojektowany w czystym CSS, wykorzystujący techniki *box-shadow* i gradienty do imitacji fizycznego panelu wzmacniacza gitarowego.
-* **Canvas API:** Wykorzystanie elementu HTML5 Canvas do renderowania płynnych animacji wskazówki analogowego tunera (60 FPS).
+## ⚠️ Uwagi dotyczące sterowników (Windows)
 
----
+Aplikacja domyślnie wspiera sterowniki **MME / DirectSound**, co zapewnia najwyższą stabilność i kompatybilność na systemach Windows 10/11.
+* Jeśli doświadczasz braku dźwięku na sterownikach WASAPI, wybierz z listy urządzenie z dopiskiem **(MME)**.
+* Zalecane ustawienie próbkowania w systemie i interfejsie: **44100 Hz** lub **48000 Hz**.
 
-##  4. Dokumentacja API 
-
-Aplikacja udostępnia interfejs komunikacyjny, co pozwala na jej integrację z innymi systemami audio.
-
-### Endpointy REST (Flask)
-| Endpoint | Metoda | Parametry | Opis |
-| :--- | :--- | :--- | :--- |
-| `/api/devices` | `GET` | brak | Zwraca listę dostępnych urządzeń wejściowych audio (ID, Nazwa). |
-| `/api/select_device` | `POST` | `{"id": int}` | Ustawia aktywne urządzenie wejściowe (np. Scarlett). |
-
-### Komunikaty WebSocket (Socket.io)
-* **`volume_update`**: Emituje dane o poziomie sygnału w skali 0-100 (RMS).
-* **`pitch_update`**: Emituje słownik `{"note": "E2", "freq": 82.41, "cents": -2}`, pozwalający na aktualizację tunera.
-
----
-
-##  5. Instrukcja użytkowania (User Guide)
-
-1.  **Podłączenie:** Podłącz gitarę do wejścia 1 (Input 1) w interfejsie Scarlett. Upewnij się, że przycisk **INST** jest podświetlony.
-2.  **Uruchomienie:** Odpal serwer `app.py` i wejdź na `localhost:5000`.
-3.  **Kalibracja:** Jeśli używasz mikrofonu, zachowaj ciszę przez chwilę, aby bramka szumów mogła się dostosować.
-4.  **Strojenie:** Uderz w wybraną strunę. Na złotym panelu Marshalla zobaczysz nazwę nuty.
-    * Wskazówka na środku: Gitara nastrojona.
-    * Wskazówka w lewo: Dźwięk za niski.
-    * Wskazówka w prawo: Dźwięk za wysoki.
-
----
-
-##  6. Instrukcja dla dewelopera
-
-Jeśli chcesz rozbudować projekt:
-1.  Logika analizy dźwięku znajduje się w pliku `yin_algorithm.py`.
-2.  Style wizualne wzmacniacza zdefiniowane są w `static/css/style.css`.
-3.  Aby dodać nowy efekt (np. Distortion), zaimplementuj nową funkcję w `audio_manager.py` operującą na tablicy `numpy.ndarray`.
-
----
-*Projekt wykonany na potrzeby zaliczenia przedmiotów PPP, PAI oraz OiRPOS.*
+## 📜 Licencja
+Projekt Open Source stworzony w celach edukacyjnych.
