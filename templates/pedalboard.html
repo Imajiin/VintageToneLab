@@ -380,14 +380,21 @@
 
         // --- OBSŁUGA SOCKETÓW (TUNER) ---
         socket.on('audio_update', (data) => {
+            const noteDisplay = document.getElementById('tuner-note');
+            const leds = document.getElementsByClassName('t-led');
+
+            // Jeśli przychodzą dane z tunera (Tuner ON i gra)
             if (data.tuner) {
-                const noteDisplay = document.getElementById('tuner-note');
                 if(noteDisplay) noteDisplay.innerText = data.tuner.note;
                 
-                const leds = document.getElementsByClassName('t-led');
+                // Reset diod
                 for(let l of leds) l.className = l.className.replace('active-red', '').replace('active-green', '');
                 
                 const cents = data.tuner.cents;
+                
+                // Jeśli tuner nic nie wykrywa ('--'), nie zapalaj diod
+                if (data.tuner.note === '--') return;
+
                 let idx = 5;
                 if (cents < -40) idx = 0; else if (cents < -30) idx = 1; else if (cents < -20) idx = 2;
                 else if (cents < -10) idx = 3; else if (cents < -3) idx = 4; else if (cents > 40) idx = 10;
@@ -396,6 +403,11 @@
 
                 const target = document.getElementById(`tl-${idx}`);
                 if(target) target.classList.add(idx === 5 ? 'active-green' : 'active-red');
+            } 
+            // Jeśli tuner wyłączony lub brak danych
+            else {
+                if(noteDisplay) noteDisplay.innerText = "--";
+                for(let l of leds) l.className = l.className.replace('active-red', '').replace('active-green', '');
             }
         });
     </script>

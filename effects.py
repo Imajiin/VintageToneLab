@@ -14,44 +14,88 @@ class Effect:
     def apply(self, signal): return signal
 # --- 1. TUNER (TU-3 Logic) ---
 # --- 1. TUNER (TU-3 Logic - WERSJA BEZ MUTE) ---
+# --- 1. TUNER (TU-3 PRO VERSION) ---
 class BossTU3(Effect):
     def __init__(self, fs):
         super().__init__(fs)
-        self.buffer = np.zeros(4096)
+        # Większy bufor = większa precyzja dla niskich strun (E, A)
+        self.buffer = np.zeros(8192) 
         self.ptr = 0
         self.is_ready = False
         self.NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
 
     def process(self, signal):
-        # 1. Analiza (zawsze)
+        # Tuner tylko analizuje, sygnał przepuszcza bez zmian (True Bypass)
         self._analyze(signal)
-        
-        # 2. Wyjście - ZAWSZE przepuszczamy dźwięk, nawet jak tuner jest ON
-        # W oryginale było: return signal * 0.0
         return signal 
 
     def _analyze(self, signal):
-        chunk_size = len(signal)
+        # Pobieramy tylko jeden kanał (mono) do analizy
+        mono_signal = signal[:, 0]
+        chunk_size = len(mono_signal)
+        
+        # Bufor cykliczny
         if self.ptr + chunk_size > len(self.buffer):
-            self.ptr = 0
-            self.is_ready = True
-        self.buffer[self.ptr : self.ptr + chunk_size] = signal[:, 0]
-        self.ptr += chunk_size
+            # Przesuwamy dane w lewo (FIFO)
+            self.buffer = np.roll(self.buffer, -chunk_size)
+            self.ptr = len(self.buffer) - chunk_size
+            
+        self.buffer[self.ptr : self.ptr + chunk_size] = mono_signal
+        # self.ptr nie zwiększamy w nieskończoność w buforze przesuwnym, 
+        # ale tutaj prościej jest trzymać stały wskaźnik końca.
+        self.is_ready = True
 
     def get_tuner_data(self):
-        if not self.is_ready: return None
-        spectrum = np.fft.rfft(self.buffer * np.hanning(len(self.buffer)))
-        magnitudes = np.abs(spectrum)
-        peak_idx = np.argmax(magnitudes)
-        if magnitudes[peak_idx] < 0.5: return {'note': '--', 'cents': 0}
-        freq = peak_idx * self.fs / len(self.buffer)
-        if freq < 60 or freq > 1500: return {'note': '--', 'cents': 0}
+        if not self.is_ready: 
+            return {'note': '--', 'cents': 0}
+
+        # 1. Okno Hanninga
+        windowed = self.buffer * np.hanning(len(self.buffer))
+        
+        # 2. FFT
+        spectrum = np.abs(np.fft.rfft(windowed))
+        
+        # 3. Szukanie piku
+        peak_idx = np.argmax(spectrum)
+        max_val = spectrum[peak_idx]
+
+        # --- POPRAWKA: ZMNIEJSZONY PRÓG (BYŁO 2.0) ---
+        if max_val < 0.1: 
+            return {'note': '--', 'cents': 0}
+
+        # 4. Interpolacja
+        if 0 < peak_idx < len(spectrum) - 1:
+            y0, y1, y2 = spectrum[peak_idx-1], spectrum[peak_idx], spectrum[peak_idx+1]
+            denom = (y0 - 2*y1 + y2)
+            if denom != 0:
+                delta = 0.5 * (y0 - y2) / denom
+                true_idx = peak_idx + delta
+            else:
+                true_idx = peak_idx
+        else:
+            true_idx = peak_idx
+
+        # 5. Konwersja na Hz
+        freq = true_idx * self.fs / len(self.buffer)
+
+        # --- DIAGNOSTYKA (USUŃ TO JAK JUŻ BĘDZIE DZIAŁAĆ) ---
+        # print(f"TUNER DEBUG: Siła={max_val:.2f} | Hz={freq:.2f}") 
+        # ----------------------------------------------------
+
+        # 6. Filtrowanie (Gitara: E2=82Hz ... E4=330Hz ... High=1200Hz)
+        if freq < 60 or freq > 1500:
+            return {'note': '--', 'cents': 0}
+
+        # 7. Wynik
         if freq > 0:
             midi_num = 12 * np.log2(freq / 440.0) + 69
             midi_rounded = int(round(midi_num))
             note_idx = midi_rounded % 12
             deviation = (midi_num - midi_rounded) * 100
-            return {'note': self.NOTE_NAMES[note_idx], 'cents': int(deviation)}
+            
+            note_name = self.NOTE_NAMES[note_idx]
+            return {'note': note_name, 'cents': int(deviation)}
+            
         return {'note': '--', 'cents': 0}
         
 # --- 2. COMPRESSOR (CS-3) ---

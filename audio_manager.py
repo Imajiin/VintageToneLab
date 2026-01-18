@@ -153,8 +153,25 @@ class AudioManager:
         outdata[:, 0] = final_signal[:, 0]
         outdata[:, 1] = final_signal[:, 0]
 
+       # UI Updates
         if self.callback_function:
-            self.callback_function(vol_out, None)
+            vol = float(np.abs(final_signal).mean() * 20)
+            
+            # Zwolnij odświeżanie tunera (co ok. 10 ramek), żeby nie mrugał jak szalony
+            self.tuner_timer += 1
+            tuner_info = None
+            
+            if self.tuner_timer > 4: # Zmniejszyłem z 6 na 4 dla płynności
+                self.tuner_timer = 0
+                
+                # Pobieramy dane TYLKO jeśli Tuner jest włączony (Active)
+                if self.chain['tuner'].active:
+                    tuner_info = self.chain['tuner'].get_tuner_data()
+                else:
+                    # Jeśli wyłączony, wyślij null, żeby zgasić diody w JS
+                    tuner_info = None 
+
+            self.callback_function(vol, tuner_info)
 
     def start_streaming(self, device_id, callback):
         self.stop_streaming()
