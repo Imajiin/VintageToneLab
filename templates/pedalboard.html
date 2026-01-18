@@ -6,23 +6,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@700;900&family=Roboto:wght@500;900&display=swap" rel="stylesheet">
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <style>
-        /* --- ANIMACJA WEJŚCIA STRONY --- */
+        /* --- STYLE OGÓLNE --- */
         body { 
-            background-color: #121212; 
-            color: #fff; 
+            background-color: #121212; color: #fff; 
             font-family: 'Roboto Condensed', sans-serif; 
             margin: 0; padding: 20px;
-            opacity: 0;
-            transform: translateY(30px);
+            opacity: 0; transform: translateY(30px);
             animation: fadeInUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
         }
-
-        @keyframes fadeInUp {
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
         
         /* NAV BAR */
-        .nav-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 15px; }
+        .nav-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 15px; }
         .logo { font-size: 28px; color: #d4af37; text-transform: uppercase; letter-spacing: 2px; }
         .nav-btn { 
             background: #222; color: #d4af37; padding: 10px 25px; text-decoration: none; 
@@ -30,6 +25,17 @@
             text-transform: uppercase; font-size: 14px;
         }
         .nav-btn:hover { background: #d4af37; color: #000; }
+
+        /* BELKA PRESETÓW */
+        .top-bar {
+            background: #222; padding: 15px; text-align: center; color: white; 
+            border: 1px solid #444; border-radius: 4px; margin-bottom: 30px;
+            display: flex; justify-content: center; align-items: center; gap: 15px;
+        }
+        .top-bar select {
+            padding: 8px; font-size: 16px; border-radius: 4px; background: #333; color: #fff; border: 1px solid #555;
+            font-family: 'Roboto', sans-serif; cursor: pointer;
+        }
 
         /* PEDALBOARD GRID */
         .pedalboard {
@@ -42,19 +48,15 @@
 
         /* --- BOSS STOMPBOX CHASSIS --- */
         .pedal {
-            width: 150px; height: 290px;
-            border-radius: 6px;
-            position: relative;
-            display: flex; flex-direction: column; align-items: center;
-            padding: 15px 8px;
-            box-shadow: 
-                0 5px 15px rgba(0,0,0,0.7), 
-                inset 0 2px 2px rgba(255,255,255,0.2),
-                inset 0 -5px 10px rgba(0,0,0,0.3);
+            width: 150px; height: 290px; border-radius: 6px; position: relative;
+            display: flex; flex-direction: column; align-items: center; padding: 15px 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.7), inset 0 2px 2px rgba(255,255,255,0.2), inset 0 -5px 10px rgba(0,0,0,0.3);
             border-bottom: 5px solid rgba(0,0,0,0.4);
+            /* WAŻNE: To pozwala dymkowi wystawać poza obrys kostki */
+            overflow: visible !important; 
         }
 
-        /* REALISTYCZNE KOLORY BOSSa */
+        /* KOLORY */
         .white { background: linear-gradient(180deg, #f5f5f5 0%, #e0e0e0 100%); color: #222; }
         .blue { background: linear-gradient(180deg, #0066cc 0%, #004a99 100%); }
         .orange { background: linear-gradient(180deg, #ff8c00 0%, #e67e00 100%); color: #111; }
@@ -65,60 +67,67 @@
         .darkgray { background: linear-gradient(180deg, #444 0%, #333 100%); }
         .red { background: linear-gradient(180deg, #e6005c 0%, #cc0052 100%); }
         
+        /* TEXT I DETALE */
         .pedal-top-labels { width: 100%; display: flex; justify-content: space-between; margin-bottom: 10px; padding: 0 5px; font-size: 10px; font-weight: bold; opacity: 0.7; color: #fff; }
-
-        /* --- STYL BRANDINGU --- */
-        .pedal-branding {
-            text-align: center;
-            margin-top: auto; 
-            margin-bottom: 8px;
-            color: #fff; /* Domyślny biały */
-            line-height: 1;
-        }
+        .pedal-branding { text-align: center; margin-top: auto; margin-bottom: 8px; color: #fff; line-height: 1; }
+        .branding-name { font-family: 'Roboto Condensed', sans-serif; font-weight: 900; font-size: 22px; text-transform: uppercase; letter-spacing: -1px; display: block; }
+        .branding-model { font-family: 'Roboto', sans-serif; font-weight: 900; font-size: 14px; display: inline-block; margin-top: 2px; }
         
-        .branding-name {
-            font-family: 'Roboto Condensed', sans-serif;
-            font-weight: 900;
-            font-size: 22px;
-            text-transform: uppercase;
-            letter-spacing: -1px;
-            display: block;
-        }
-        
-        .branding-model {
-            font-family: 'Roboto', sans-serif;
-            font-weight: 900;
-            font-size: 14px;
-            display: inline-block;
-            margin-top: 2px;
+        .black-text .pedal-top-labels, .black-text .label-txt, .black-text .pedal-branding, .black-text .check-indicator {
+            color: #1a1a1a !important; text-shadow: 0px 1px 0px rgba(255,255,255,0.3);
         }
 
-        /* --- KLASA DLA CZARNYCH NAPISÓW --- */
-        /* To jest kluczowe dla OD-1, DS-1, Booster, Chorus */
-        .black-text .pedal-top-labels,
-        .black-text .label-txt,
-        .black-text .pedal-branding,
-        .black-text .check-indicator {
-            color: #1a1a1a !important;
-            text-shadow: 0px 1px 0px rgba(255,255,255,0.3);
+        /* --- INFO BUTTON (HOVER TOOLTIP) - NOWOŚĆ --- */
+        .info-btn {
+            position: absolute; top: 5px; right: 5px; width: 22px; height: 22px;
+            background: rgba(0,0,0,0.6); color: white; border: 1px solid rgba(255,255,255,0.8);
+            border-radius: 50%; font-size: 14px; cursor: help; z-index: 500;
+            text-align: center; line-height: 20px; font-family: sans-serif; font-weight: bold;
+        }
+        .info-btn:hover { background: white; color: black; border-color: black; }
+
+        /* Styl samego Dymka (Tooltipa) */
+        .tooltip-box {
+            visibility: hidden; /* Domyślnie ukryty */
+            width: 220px;
+            background-color: #222;
+            color: #fff;
+            text-align: left;
+            border-radius: 6px;
+            padding: 15px;
+            position: absolute;
+            z-index: 1000;
+            top: 30px; /* Pozycja pod guzikiem */
+            right: 0;  /* Wyrównanie do prawej krawędzi guzika */
+            
+            /* Stylizacja ramki */
+            border: 2px solid #d4af37;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.9);
+            font-size: 13px;
+            line-height: 1.4;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none; /* Żeby myszka nie "haczyła" o dymek */
         }
 
-        /* --- POKRĘTŁA --- */
+        /* Pokazywanie po najechaniu na .info-btn */
+        .info-btn:hover .tooltip-box {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Styl tekstu w dymku */
+        .tt-title { color: #d4af37; font-weight: bold; font-size: 14px; margin-bottom: 5px; text-transform: uppercase; border-bottom: 1px solid #555; padding-bottom: 5px; display: block;}
+        .tt-knob { display: block; margin-top: 4px; font-size: 11px; color: #aaa; }
+        .tt-knob strong { color: #fff; }
+
+        /* POKRĘTŁA */
         .knobs-area { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px 8px; width: 100%; }
         .knob-unit { display: flex; flex-direction: column; align-items: center; width: 40px; }
-        
-        .label-txt { 
-            font-family: 'Roboto', sans-serif; font-size: 9px; text-transform: uppercase; font-weight: 700; margin-bottom: 4px; 
-            text-align: center; letter-spacing: 0.5px; opacity: 0.9; color: #fff;
-        }
-
+        .label-txt { font-family: 'Roboto', sans-serif; font-size: 9px; text-transform: uppercase; font-weight: 700; margin-bottom: 4px; text-align: center; letter-spacing: 0.5px; opacity: 0.9; color: #fff; }
         .boss-knob {
-            width: 32px; height: 32px;
-            background: #111;
-            border-radius: 50%;
-            position: relative;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
-            border: 1px solid #333;
+            width: 32px; height: 32px; background: #111; border-radius: 50%; position: relative;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5); border: 1px solid #333;
         }
         .boss-knob::after {
             content: ''; position: absolute; top: 3px; left: 50%; width: 2px; height: 10px;
@@ -126,50 +135,36 @@
         }
         .knob-input { position: absolute; opacity: 0; pointer-events: none; }
 
-        /* --- LED INDICATOR --- */
+        /* FOOTSWITCH I LED */
         .check-indicator { display: flex; align-items: center; font-size: 9px; font-weight: bold; margin-bottom: 5px; align-self: flex-start; padding-left: 10px; color: #fff;}
-        .led { 
-            width: 8px; height: 8px; background: #300; border-radius: 50%; 
-            box-shadow: inset 0 0 2px #000; border: 1px solid rgba(0,0,0,0.3); margin-right: 5px;
-            transition: 0.2s;
-        }
+        .led { width: 8px; height: 8px; background: #300; border-radius: 50%; box-shadow: inset 0 0 2px #000; border: 1px solid rgba(0,0,0,0.3); margin-right: 5px; transition: 0.2s; }
         .led.on { background: #f00; box-shadow: 0 0 8px #f00, inset 0 0 2px #fff; }
-
-        /* --- BOSS FOOTSWITCH PAD --- */
         .footswitch-pad {
-            width: 130px; height: 90px;
-            background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
-            border-radius: 4px;
-            border: 1px solid #000;
-            box-shadow: inset 0 2px 5px rgba(255,255,255,0.1), 0 5px 10px rgba(0,0,0,0.5);
+            width: 130px; height: 90px; background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
+            border-radius: 4px; border: 1px solid #000; box-shadow: inset 0 2px 5px rgba(255,255,255,0.1), 0 5px 10px rgba(0,0,0,0.5);
             display: flex; flex-direction: column; justify-content: flex-end; align-items: center;
-            padding-bottom: 15px;
-            cursor: pointer; position: relative;
+            padding-bottom: 15px; cursor: pointer; position: relative;
         }
         .footswitch-pad:active { transform: translateY(2px); box-shadow: inset 0 1px 2px rgba(0,0,0,0.5), 0 2px 5px rgba(0,0,0,0.5); }
-        
         .footswitch-pad::before {
             content: ''; position: absolute; top: 10px; width: 12px; height: 12px;
-            background: radial-gradient(circle, #555 20%, #222 80%);
-            border-radius: 50%; box-shadow: inset 0 1px 1px rgba(255,255,255,0.2);
+            background: radial-gradient(circle, #555 20%, #222 80%); border-radius: 50%; box-shadow: inset 0 1px 1px rgba(255,255,255,0.2);
         }
         .boss-logo { font-family: 'Roboto Condensed', sans-serif; font-weight: bold; font-size: 20px; color: rgba(255,255,255,0.8); letter-spacing: 1px;}
 
-        /* TUNER DISPLAY */
+        /* TUNER */
         .tuner-screen-container {
             width: 120px; height: 80px; background: #000; border: 4px solid #222;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             box-shadow: inset 0 0 10px #000; margin-bottom: auto; position: relative;
         }
-        .tuner-note {
-            font-family: monospace; font-size: 36px; font-weight: bold; color: #2ecc71;
-            text-shadow: 0 0 5px #2ecc71; line-height: 1;
-        }
+        .tuner-note { font-family: monospace; font-size: 36px; font-weight: bold; color: #2ecc71; text-shadow: 0 0 5px #2ecc71; line-height: 1; }
         .tuner-leds { display: flex; gap: 2px; margin-top: 5px; }
         .t-led { width: 6px; height: 10px; background: #331111; border-radius: 1px; }
         .t-led.center { width: 8px; height: 12px; background: #113311; } 
         .t-led.active-red { background: #ff0000; box-shadow: 0 0 5px #ff0000; }
         .t-led.active-green { background: #00ff00; box-shadow: 0 0 8px #00ff00; }
+
     </style>
 </head>
 <body>
@@ -179,242 +174,230 @@
         <a href="/" class="nav-btn"> << BACK TO JCM 900 AMP</a>
     </div>
 
-    <div class="pedalboard" id="board">
-    </div>
-
-    <div id="infoModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <h2 id="modalTitle">Effect Name</h2>
-            <p id="modalDesc" class="modal-desc">Opis ogólny...</p>
-            <div id="modalKnobs" class="knob-list"></div>
-        </div>
-    </div>
-
     <div class="top-bar">
-        <label>Gatunek / Preset:</label>
+        <label>WYBIERZ GATUNEK / PRESET:</label>
         <select id="genreSelect">
-            <option value="manual">-- Ustawienia własne --</option>
+            <option value="manual">-- Ustawienia Własne (Manual) --</option>
             <option value="clean">Clean / Jazz</option>
             <option value="blues">Blues / Rock</option>
             <option value="metal">Metal / High Gain</option>
             <option value="ambient">Ambient / Space</option>
         </select>
     </div>
-    
-<script>
-    const socket = io();
-    
-    // DEFINICJA KOSTEK
-    // NAPRAWA: Zmieniono 'darkLabels: true' na 'blackText: true' dla wszystkich jasnych kostek
-    const pedals = [
-        { id: 'tuner', name: 'Chromatic Tuner', model: 'TU-3', color: 'white', isTuner: true, blackText: true },
+
+    <div class="pedalboard" id="board"></div>
+
+    <script>
+        const socket = io();
+
+        // --- BAZA WIEDZY O EFEKTACH ---
+        const PEDAL_INFO = {
+            'tuner': { desc: "Tuner chromatyczny. Służy do strojenia gitary. Działa zawsze (True Bypass z monitoringiem).", knobs: {} },
+            'comp': { desc: "Kompresor (CS-3). Wyrównuje dynamikę gry. Podgłaśnia ciche dźwięki, ścisza te zbyt głośne.", knobs: { 'level': 'Głośność', 'tone': 'Barwa', 'attack': 'Atak', 'sustain': 'Podtrzymanie' } },
+            'pitch': { desc: "Pitch Shifter (PS-6). Zmienia wysokość dźwięku gitary.", knobs: { 'balance': 'Mix', 'pitch': 'Wysokość' } },
+            'dist': { desc: "Distortion (DS-1). Klasyczny, ostry przester. Legenda rocka i grunge'u.", knobs: { 'tone': 'Barwa', 'level': 'Głośność', 'dist': 'Gain' } },
+            'drive': { desc: "Overdrive (OD-1). Ciepły, miękki przester symulujący lampę.", knobs: { 'level': 'Głośność', 'drive': 'Nasycenie' } },
+            'fuzz': { desc: "Fuzz (FZ-5). Bardzo mocny, 'brudny' i zapiaszczony przester.", knobs: { 'level': 'Głośność', 'fuzz': 'Fuzz' } },
+            'boost': { desc: "Booster (BP-1W). Czyste podbicie sygnału.", knobs: { 'level': 'Głośność', 'gain': 'Wzmocnienie' } },
+            'flanger': { desc: "Flanger (BF-3). Efekt 'startującego odrzutowca'.", knobs: { 'res': 'Rezonans', 'manual': 'Opóźnienie', 'depth': 'Głębokość', 'rate': 'Szybkość' } },
+            'chorus': { desc: "Chorus (CE-2W). Dubluje sygnał i lekko go rozstraja.", knobs: { 'rate': 'Szybkość', 'depth': 'Głębokość' } },
+            'delay': { desc: "Delay (DM-2W). Echo analogowe.", knobs: { 'repeat': 'Powtórzenia', 'intensity': 'Głośność', 'time': 'Czas' } },
+            'reverb': { desc: "Reverb (RV-6). Pogłos przestrzenny.", knobs: { 'level': 'Głośność', 'tone': 'Barwa', 'time': 'Długość' } }
+        };
+
+        // --- PRESETY ---
+        const PRESETS = {
+            'clean': { active: ['comp', 'chorus', 'reverb'], knobs: {} },
+            'blues': { active: ['drive', 'reverb'], knobs: { 'drive': {'drive': 0.4} } },
+            'metal': { active: ['comp', 'dist'], knobs: { 'dist': {'dist': 0.95, 'tone': 0.7} } },
+            'ambient': { active: ['delay', 'reverb', 'chorus'], knobs: { 'delay': {'time': 0.8}, 'reverb': {'time': 0.9} } }
+        };
+
+        // --- KONFIGURACJA WIZUALNA ---
+        const pedals = [
+            { id: 'tuner', name: 'Chromatic Tuner', model: 'TU-3', color: 'white', isTuner: true, blackText: true },
+            { id: 'comp', name: 'Compression', model: 'CS-3', color: 'blue', params: [{id: 'level', label: 'LEVEL'}, {id: 'tone', label: 'TONE'}, {id: 'attack', label: 'ATTACK'}, {id: 'sustain', label: 'SUSTAIN'}]},
+            { id: 'pitch', name: 'Harmonist', model: 'PS-6', color: 'blue', params: [{id: 'balance', label: 'BALANCE'}, {id: 'pitch', label: 'SHIFT'}]},
+            { id: 'dist', name: 'Distortion', model: 'DS-1', color: 'orange', blackText: true, params: [{id: 'tone', label: 'TONE'}, {id: 'level', label: 'LEVEL'}, {id: 'dist', label: 'DIST'}]},
+            { id: 'drive', name: 'OverDrive', model: 'OD-1', color: 'yellow', blackText: true, params: [{id: 'level', label: 'LEVEL'}, {id: 'drive', label: 'DRIVE'}]},
+            { id: 'fuzz', name: 'Fuzz', model: 'FZ-5', color: 'gray', params: [{id: 'level', label: 'LEVEL'}, {id: 'fuzz', label: 'FUZZ'}]},
+            { id: 'boost', name: 'Booster', model: 'BP-1W', color: 'white', blackText: true, params: [{id: 'level', label: 'LEVEL'}, {id: 'gain', label: 'GAIN'}]},
+            { id: 'flanger', name: 'Flanger', model: 'BF-3', color: 'purple', params: [{id: 'res', label: 'RES'}, {id: 'manual', label: 'MANUAL'}, {id: 'depth', label: 'DEPTH'}, {id: 'rate', label: 'RATE'}]},
+            { id: 'chorus', name: 'Chorus', model: 'CE-2W', color: 'lightblue', blackText: true, params: [{id: 'rate', label: 'RATE'}, {id: 'depth', label: 'DEPTH'}]},
+            { id: 'delay', name: 'Delay', model: 'DM-2W', color: 'red', params: [{id: 'repeat', label: 'R.RATE'}, {id: 'intensity', label: 'E.LEVEL'}, {id: 'time', label: 'INTENSITY'}]},
+            { id: 'reverb', name: 'Reverb', model: 'RV-6', color: 'darkgray', params: [{id: 'level', label: 'E.LEVEL'}, {id: 'tone', label: 'TONE'}, {id: 'time', label: 'TIME'}]}
+        ];
+
+        // --- GLOBALNE FUNKCJE (MUSZĄ BYĆ DOSTĘPNE DLA HTML ONCLICK) ---
         
-        { id: 'comp', name: 'Compression', model: 'CS-3', color: 'blue', params: [
-            {id: 'level', label: 'LEVEL'}, {id: 'tone', label: 'TONE'},
-            {id: 'attack', label: 'ATTACK'}, {id: 'sustain', label: 'SUSTAIN'}
-        ]},
-        
-        { id: 'pitch', name: 'Harmonist', model: 'PS-6', color: 'blue', params: [
-            {id: 'balance', label: 'BALANCE'}, {id: 'pitch', label: 'SHIFT'}
-        ]},
+        window.toggleEffect = function(name) {
+            const led = document.getElementById(`led-${name}`);
+            const isActive = !led.classList.contains('on');
+            if(isActive) led.classList.add('on'); else led.classList.remove('on');
+            socket.emit('toggle_effect', {name: name, active: isActive});
+        };
 
-        // DS-1: Orange + CZARNE NAPISY (blackText: true)
-        { id: 'dist', name: 'Distortion', model: 'DS-1', color: 'orange', blackText: true, params: [
-            {id: 'tone', label: 'TONE'}, {id: 'level', label: 'LEVEL'},
-            {id: 'dist', label: 'DIST'}
-        ]},
-
-        // OD-1: Yellow + CZARNE NAPISY (blackText: true)
-        { id: 'drive', name: 'OverDrive', model: 'OD-1', color: 'yellow', blackText: true, params: [
-            {id: 'level', label: 'LEVEL'}, {id: 'drive', label: 'DRIVE'}
-        ]},
-        
-        { id: 'fuzz', name: 'Fuzz', model: 'FZ-5', color: 'gray', params: [
-            {id: 'level', label: 'LEVEL'}, {id: 'fuzz', label: 'FUZZ'}
-        ]},
-        
-        // Booster: White + CZARNE NAPISY (blackText: true)
-        { id: 'boost', name: 'Booster', model: 'BP-1W', color: 'white', blackText: true, params: [
-            {id: 'level', label: 'LEVEL'}, {id: 'gain', label: 'GAIN'}
-        ]},
-
-        { id: 'flanger', name: 'Flanger', model: 'BF-3', color: 'purple', params: [
-            {id: 'res', label: 'RES'}, {id: 'manual', label: 'MANUAL'},
-            {id: 'depth', label: 'DEPTH'}, {id: 'rate', label: 'RATE'}
-        ]},
-
-        // Chorus: LightBlue + CZARNE NAPISY (blackText: true)
-        { id: 'chorus', name: 'Chorus', model: 'CE-2W', color: 'lightblue', blackText: true, params: [
-            {id: 'rate', label: 'RATE'}, {id: 'depth', label: 'DEPTH'}
-        ]},
-
-        { id: 'delay', name: 'Delay', model: 'DM-2W', color: 'red', params: [
-            {id: 'repeat', label: 'R.RATE'}, {id: 'intensity', label: 'E.LEVEL'},
-            {id: 'time', label: 'INTENSITY'}
-        ]},
-
-        { id: 'reverb', name: 'Reverb', model: 'RV-6', color: 'darkgray', params: [
-            {id: 'level', label: 'E.LEVEL'}, {id: 'tone', label: 'TONE'},
-            {id: 'time', label: 'TIME'}
-        ]}
-    ];
-
-    const board = document.getElementById('board');
-
-    // 1. GENEROWANIE HTML KOSTEK
-    pedals.forEach(p => {
-        const div = document.createElement('div');
-        // Tutaj sprawdzamy p.blackText - dlatego zmiana w tablicy powyżej była kluczowa
-        div.className = `pedal ${p.color} ${p.blackText ? 'black-text' : ''}`;
-        div.id = `pedal-${p.id}`;
-        
-        let controlsHtml = '';
-        if (p.isTuner) {
-            controlsHtml = `
-                <div class="tuner-screen-container">
-                    <div class="tuner-note" id="tuner-note">--</div>
-                    <div class="tuner-leds" id="tuner-leds">
-                        <div class="t-led" id="tl-0"></div><div class="t-led" id="tl-1"></div>
-                        <div class="t-led" id="tl-2"></div><div class="t-led" id="tl-3"></div>
-                        <div class="t-led" id="tl-4"></div>
-                        <div class="t-led center" id="tl-5"></div>
-                        <div class="t-led" id="tl-6"></div><div class="t-led" id="tl-7"></div>
-                        <div class="t-led" id="tl-8"></div><div class="t-led" id="tl-9"></div>
-                        <div class="t-led" id="tl-10"></div>
-                    </div>
-                </div>
-            `;
-        } else {
-            controlsHtml = '<div class="knobs-area">';
-            p.params.forEach(param => {
-                controlsHtml += `
-                    <div class="knob-unit" id="unit-${p.id}-${param.id}">
-                        <span class="label-txt">${param.label}</span>
-                        <div class="boss-knob" id="knob-${p.id}-${param.id}"></div>
-                        <input type="range" class="knob-input"
-                               id="${p.id}-${param.id}" 
-                               min="0" max="1" step="0.01" value="0.5">
-                    </div>
-                `;
-            });
-            controlsHtml += '</div>';
-        }
-
-        div.innerHTML = `
-            <div class="pedal-top-labels"><span>OUTPUT</span><span>INPUT</span></div>
-            <div class="check-indicator"><div class="led" id="led-${p.id}"></div> CHECK</div>
-            
-            ${controlsHtml}
-
-            <div class="pedal-branding">
-                <span class="branding-name">${p.name}</span>
-                <span class="branding-model">${p.model}</span>
-            </div>
-
-            <div class="footswitch-pad" onclick="toggleEffect('${p.id}')">
-                <span class="boss-logo">BOSS</span>
-            </div>
-        `;
-        board.appendChild(div);
-
-        if (!p.isTuner) {
-            p.params.forEach(param => {
-                setupKnobScrolling(p.id, param.id);
-            });
-        }
-    });
-
-    // 2. LOGIKA OBSŁUGI GAŁEK
-    function setupKnobScrolling(pedalId, paramId) {
-        const unit = document.getElementById(`unit-${pedalId}-${paramId}`);
-        const slider = document.getElementById(`${pedalId}-${paramId}`);
-        const knob = document.getElementById(`knob-${pedalId}-${paramId}`);
-
-        function updateKnobVisual(val) {
+        function updateKnobVisual(val, knobElement) {
             const rot = (val * 270) - 135;
-            knob.style.transform = `rotate(${rot}deg)`;
+            knobElement.style.transform = `rotate(${rot}deg)`;
         }
-        updateKnobVisual(slider.value);
 
-        unit.addEventListener('wheel', (e) => {
-            e.preventDefault();
-            const step = 0.05;
-            let currentVal = parseFloat(slider.value);
-            if (e.deltaY < 0) currentVal += step; else currentVal -= step;
-            currentVal = Math.min(Math.max(currentVal, 0), 1);
-            slider.value = currentVal;
-            updateKnobVisual(currentVal);
-            socket.emit('update_effect', {name: pedalId, param: paramId, value: currentVal});
-        }, { passive: false });
-    }
+        function setupKnobScrolling(pedalId, paramId) {
+            const unit = document.getElementById(`unit-${pedalId}-${paramId}`);
+            const slider = document.getElementById(`${pedalId}-${paramId}`);
+            const knob = document.getElementById(`knob-${pedalId}-${paramId}`);
 
-    // 3. FUNKCJE KOMUNIKACJI
-    function toggleEffect(name) {
-        const led = document.getElementById(`led-${name}`);
-        const isActive = !led.classList.contains('on');
-        if(isActive) led.classList.add('on'); else led.classList.remove('on');
-        socket.emit('toggle_effect', {name: name, active: isActive});
-    }
+            function updateLocal(val) { updateKnobVisual(val, knob); }
+            updateLocal(slider.value);
 
-    // 4. SYNCHRONIZACJA STANU + TUNER
-    socket.on('audio_update', (data) => {
-        if (data.tuner) {
-            const noteDisplay = document.getElementById('tuner-note');
-            const leds = document.getElementsByClassName('t-led');
-            
-            noteDisplay.innerText = data.tuner.note;
-            
-            for(let l of leds) {
-                l.className = l.className.replace('active-red', '').replace('active-green', '');
-            }
-
-            const cents = data.tuner.cents;
-            let ledIndex = 5;
-
-            if (cents < -40) ledIndex = 0;
-            else if (cents < -30) ledIndex = 1;
-            else if (cents < -20) ledIndex = 2;
-            else if (cents < -10) ledIndex = 3;
-            else if (cents < -3)  ledIndex = 4;
-            else if (cents > 40)  ledIndex = 10;
-            else if (cents > 30)  ledIndex = 9;
-            else if (cents > 20)  ledIndex = 8;
-            else if (cents > 10)  ledIndex = 7;
-            else if (cents > 3)   ledIndex = 6;
-            else ledIndex = 5;
-
-            const targetLed = document.getElementById(`tl-${ledIndex}`);
-            if(targetLed) {
-                if(ledIndex === 5) targetLed.classList.add('active-green');
-                else targetLed.classList.add('active-red');
-            }
+            unit.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const step = 0.05;
+                let currentVal = parseFloat(slider.value);
+                if (e.deltaY < 0) currentVal += step; else currentVal -= step;
+                currentVal = Math.min(Math.max(currentVal, 0), 1);
+                slider.value = currentVal;
+                updateLocal(currentVal);
+                socket.emit('update_effect', {name: pedalId, param: paramId, value: currentVal});
+            }, { passive: false });
         }
-    });
 
-    window.onload = () => {
-        fetch('/api/get_state')
-            .then(r => r.json())
-            .then(state => {
-                for (const [name, data] of Object.entries(state)) {
-                    const led = document.getElementById(`led-${name}`);
-                    if(led && data.active) led.classList.add('on');
-                    for (const [param, val] of Object.entries(data.params)) {
-                        const slider = document.getElementById(`${name}-${param}`);
-                        const knob = document.getElementById(`knob-${name}-${param}`);
-                        if(slider && knob) {
-                            slider.value = val;
-                            updateKnobVisual(val, knob);
-                        }
-                    }
+        function loadPreset(name) {
+            if(name === 'manual') return;
+            const p = PRESETS[name];
+            if(!p) return;
+            
+            pedals.forEach(pedal => {
+                const led = document.getElementById(`led-${pedal.id}`);
+                const isOn = led.classList.contains('on');
+                const shouldBeOn = p.active.includes(pedal.id);
+
+                if (isOn !== shouldBeOn) {
+                    toggleEffect(pedal.id);
                 }
             });
-    };
-    
-    function updateKnobVisual(val, knobElement) {
-         const rot = (val * 270) - 135;
-         knobElement.style.transform = `rotate(${rot}deg)`;
-    }
-</script>
+        }
+
+        // --- START APLIKACJI ---
+        document.addEventListener("DOMContentLoaded", () => {
+            const board = document.getElementById('board');
+            
+            // Generowanie kostek
+            pedals.forEach(p => {
+                const div = document.createElement('div');
+                div.className = `pedal ${p.color} ${p.blackText ? 'black-text' : ''}`;
+                div.id = `pedal-${p.id}`;
+                
+                // --- GENEROWANIE DYMKA Z OPISEM (HTML ZAMIAST JS CLICK) ---
+                const info = PEDAL_INFO[p.id];
+                let knobsInfoHTML = '';
+                if(info && info.knobs) {
+                    for (const [k, v] of Object.entries(info.knobs)) {
+                        knobsInfoHTML += `<span class="tt-knob"><strong>${k.toUpperCase()}:</strong> ${v}</span>`;
+                    }
+                }
+
+                const infoBtn = `
+                    <div class="info-btn">i
+                        <div class="tooltip-box">
+                            <span class="tt-title">${p.name} (${p.model})</span>
+                            <div style="margin-bottom:8px;">${info ? info.desc : 'Brak opisu'}</div>
+                            ${knobsInfoHTML}
+                        </div>
+                    </div>`;
+                // ----------------------------------------------------------
+
+                let controlsHtml = '';
+                if (p.isTuner) {
+                    controlsHtml = `
+                        <div class="tuner-screen-container">
+                            <div class="tuner-note" id="tuner-note">--</div>
+                            <div class="tuner-leds">
+                                <div class="t-led" id="tl-0"></div><div class="t-led" id="tl-1"></div>
+                                <div class="t-led" id="tl-2"></div><div class="t-led" id="tl-3"></div>
+                                <div class="t-led" id="tl-4"></div><div class="t-led center" id="tl-5"></div>
+                                <div class="t-led" id="tl-6"></div><div class="t-led" id="tl-7"></div>
+                                <div class="t-led" id="tl-8"></div><div class="t-led" id="tl-9"></div>
+                                <div class="t-led" id="tl-10"></div>
+                            </div>
+                        </div>`;
+                } else {
+                    controlsHtml = '<div class="knobs-area">';
+                    p.params.forEach(param => {
+                        controlsHtml += `
+                            <div class="knob-unit" id="unit-${p.id}-${param.id}">
+                                <span class="label-txt">${param.label}</span>
+                                <div class="boss-knob" id="knob-${p.id}-${param.id}"></div>
+                                <input type="range" class="knob-input" id="${p.id}-${param.id}" min="0" max="1" step="0.01" value="0.5">
+                            </div>`;
+                    });
+                    controlsHtml += '</div>';
+                }
+
+                div.innerHTML = `
+                    ${infoBtn}
+                    <div class="pedal-top-labels"><span>OUTPUT</span><span>INPUT</span></div>
+                    <div class="check-indicator"><div class="led" id="led-${p.id}"></div> CHECK</div>
+                    ${controlsHtml}
+                    <div class="pedal-branding">
+                        <span class="branding-name">${p.name}</span>
+                        <span class="branding-model">${p.model}</span>
+                    </div>
+                    <div class="footswitch-pad" onclick="window.toggleEffect('${p.id}')">
+                        <span class="boss-logo">BOSS</span>
+                    </div>
+                `;
+                board.appendChild(div);
+
+                if (!p.isTuner) {
+                    p.params.forEach(param => setupKnobScrolling(p.id, param.id));
+                }
+            });
+
+            // Obsługa Presetów
+            document.getElementById('genreSelect').addEventListener('change', (e) => {
+                loadPreset(e.target.value);
+            });
+
+            // Ładowanie stanu początkowego z serwera
+            fetch('/api/get_state')
+                .then(r => r.json())
+                .then(state => {
+                    for (const [name, data] of Object.entries(state)) {
+                        const led = document.getElementById(`led-${name}`);
+                        if(led && data.active) led.classList.add('on');
+                        for (const [param, val] of Object.entries(data.params)) {
+                            const slider = document.getElementById(`${name}-${param}`);
+                            const knob = document.getElementById(`knob-${name}-${param}`);
+                            if(slider && knob) {
+                                slider.value = val;
+                                updateKnobVisual(val, knob);
+                            }
+                        }
+                    }
+                });
+        });
+
+        // --- OBSŁUGA SOCKETÓW (TUNER) ---
+        socket.on('audio_update', (data) => {
+            if (data.tuner) {
+                const noteDisplay = document.getElementById('tuner-note');
+                if(noteDisplay) noteDisplay.innerText = data.tuner.note;
+                
+                const leds = document.getElementsByClassName('t-led');
+                for(let l of leds) l.className = l.className.replace('active-red', '').replace('active-green', '');
+                
+                const cents = data.tuner.cents;
+                let idx = 5;
+                if (cents < -40) idx = 0; else if (cents < -30) idx = 1; else if (cents < -20) idx = 2;
+                else if (cents < -10) idx = 3; else if (cents < -3) idx = 4; else if (cents > 40) idx = 10;
+                else if (cents > 30) idx = 9; else if (cents > 20) idx = 8; else if (cents > 10) idx = 7;
+                else if (cents > 3) idx = 6;
+
+                const target = document.getElementById(`tl-${idx}`);
+                if(target) target.classList.add(idx === 5 ? 'active-green' : 'active-red');
+            }
+        });
+    </script>
 </body>
 </html>
